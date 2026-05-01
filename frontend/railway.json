@@ -9,7 +9,7 @@
     }
   },
   "deploy": {
-    "startCommand": "npx serve dist -p $PORT",
+    "startCommand": "npx serve -s dist -p $PORT",
     "healthcheckPath": "/",
     "healthcheckTimeout": 30
   }
