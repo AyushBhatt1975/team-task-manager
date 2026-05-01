@@ -1,11 +1,16 @@
 import axios from 'axios';
 
-// In production, VITE_API_URL is set to your Railway backend URL
-const baseURL = import.meta.env.VITE_API_URL || '/api';
+// Ensure VITE_API_URL is properly formatted without a trailing slash
+const rawBaseURL = import.meta.env.VITE_API_URL || '/api';
+const baseURL = rawBaseURL.replace(/\/$/, '');
+
+console.log(`[API] Initialized with baseURL: ${baseURL}`);
 
 const api = axios.create({
   baseURL,
-  headers: { 'Content-Type': 'application/json' }
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // Attach token to every request

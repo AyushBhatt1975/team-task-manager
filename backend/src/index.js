@@ -7,8 +7,17 @@ require('./models'); // load associations
 const app = express();
 
 // Middleware
+app.use(express.json());
+
+// Request logging for debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+const frontendUrl = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : '*';
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: [frontendUrl, 'http://localhost:5173'],
   credentials: true
 }));
 app.use(express.json());
@@ -45,8 +54,10 @@ const start = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connected');
 
-    // Sync all models (alter: true for non-destructive updates)
-    await sequelize.sync({ force: process.env.NODE_ENV === 'development' });
+    // Sync all models
+    // Using alter: true is safer than force: true as it updates tables without dropping them
+    const isDev = process.env.NODE_ENV === 'development';
+    await sequelize.sync({ alter: true });
     console.log('✅ Database synced');
 
     app.listen(PORT, () => {
