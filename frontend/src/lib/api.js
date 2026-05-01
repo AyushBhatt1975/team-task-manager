@@ -2,8 +2,14 @@ import axios from 'axios';
 
 // Ensure VITE_API_URL is properly formatted without a trailing slash
 const rawBaseURL = import.meta.env.VITE_API_URL || '/api';
-// Ensure it ends with /api if it doesn't already, and remove trailing slash
+// Ensure it has a protocol, ends with /api if it doesn't already, and remove trailing slash
 let baseURL = rawBaseURL.trim();
+
+// Fix: If it's a domain but missing protocol, add https://
+if (baseURL && !baseURL.startsWith('http') && baseURL.includes('.railway.app')) {
+  baseURL = `https://${baseURL}`;
+}
+
 if (baseURL.startsWith('http') && !baseURL.endsWith('/api') && !baseURL.includes('/api/')) {
   baseURL = baseURL.replace(/\/$/, '') + '/api';
 }
