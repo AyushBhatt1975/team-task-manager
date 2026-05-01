@@ -35,10 +35,17 @@ app.get('/api/health', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('[Global Error Handler]');
+  console.error('Error Stack:', err.stack);
+  console.error('Request Method:', req.method);
+  console.error('Request URL:', req.url);
+  console.error('Request Body:', req.body);
+  
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Internal Server Error'
+    message: err.message || 'Internal Server Error',
+    // Only send stack in development
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });
 
