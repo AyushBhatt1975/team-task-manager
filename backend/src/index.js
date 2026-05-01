@@ -51,6 +51,10 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   try {
+    if (!process.env.JWT_SECRET) {
+      console.warn('⚠️ WARNING: JWT_SECRET is not set. Auth will fail!');
+    }
+
     await sequelize.authenticate();
     console.log('✅ Database connected');
 

@@ -33,10 +33,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally
+// Handle 401 globally and log errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const { config, response } = error;
+    const fullUrl = config.baseURL ? `${config.baseURL.replace(/\/$/, '')}${config.url}` : config.url;
+    
+    console.error(`[API Error] ${config.method.toUpperCase()} ${fullUrl}`);
+    if (response) {
+      console.error(`[API Error] Status: ${response.status}`);
+      console.error(`[API Error] Data:`, response.data);
+    } else {
+      console.error(`[API Error] Message: ${error.message}`);
+    }
+
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
