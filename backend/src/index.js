@@ -66,10 +66,23 @@ const start = async () => {
     console.log('✅ Database connected');
 
     // Sync all models
-    // Using alter: true is safer than force: true as it updates tables without dropping them
-    const isDev = process.env.NODE_ENV === 'development';
-    await sequelize.sync({ alter: true });
-    console.log('✅ Database synced');
+    // alter: true can fail in some dialects (like Postgres) with complex constraints
+    // force: true will drop and recreate tables (use with caution)
+    const syncOptions = { alter: true };
+    if (process.env.DB_FORCE_SYNC === 'true') {
+      console.log('⚠️ DB_FORCE_SYNC is enabled. Dropping and recreating tables...');
+      syncOptions.force = true;
+      syncOptions.alter = false;
+    }
+
+    try {
+      await sequelize.sync(syncOptions);
+      console.log('✅ Database synced');
+    } catch (syncErr) {
+      console.error('❌ Database sync failed:', syncErr.message);
+      console.log('💡 Tip: If this is a new deployment, try setting the environment variable DB_FORCE_SYNC=true once to initialize the schema.');
+      throw syncErr;
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
